@@ -4,7 +4,7 @@
       <h1>My Thoughts and Stuff...
       </h1>
     </section>
-    <PostList />
+    <PostList :posts="loadedPosts" />
   </div>
 </template>
 
@@ -14,7 +14,41 @@ import PostList from '@/components/Posts/PostList';
 export default {
   components: {
     PostList
-  }
+  },
+  asyncData(context) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve({
+          loadedPosts: [
+            {
+              id: 1,
+              title: 'First Post',
+              previewText: 'This is my first post',
+              thumbnail: 'https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg'
+            },
+            {
+              id: 2,
+              title: 'Second Post',
+              previewText: 'This is my second post',
+              thumbnail: 'https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg'
+            },
+            {
+              id: 3,
+              title: 'Third Post',
+              previewText: 'This is my third post',
+              thumbnail: 'https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg'
+            }
+          ]
+        });
+      }, 1500);
+    })
+    .then(data => {
+      return data;
+    })
+    .catch(error => {
+      context.error(new Error(error));
+    });
+  },
 }
 </script>
 

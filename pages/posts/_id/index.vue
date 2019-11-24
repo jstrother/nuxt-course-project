@@ -1,18 +1,46 @@
 <template>
   <div class="single-post">
     <section class="post">
-      <h1 class="post-title">Title of Post</h1>
+      <h1 class="post-title">{{loadedPost.title}}</h1>
       <div class="post-details">
-        <div class="post-detail">Last updated on XXX</div>
-        <div class="post-detail">Written by NAME</div>
+        <div class="post-detail">Last updated on {{loadedPost.updatedDate}}</div>
+        <div class="post-detail">Written by {{loadedPost.author}}</div>
       </div>
-      <p class="post-content">Content of post</p>
+      <p class="post-content">{{loadedPost.content}}</p>
       <section class="post-feedback">
         <p>Let me know what you think about the post. Send feedback to <a href="mailto:feedback@my-blog-site.com">feedback@my-blog-site.com</a></p>
       </section>
     </section>
   </div>
 </template>
+
+<script>
+export default {
+  asyncData(context) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve({
+          loadedPost: {
+            id: 1,
+            title: `First Post (ID: ${context.params.id})`,
+            previewText: 'This is my first post',
+            author: 'Jim Strother',
+            updatedDate: new Date(),
+            content: 'Some dummy text that is not previewText',
+            thumbnail: 'https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg'
+          }
+        })
+      }, 1500);
+    })
+    .then(data => {
+      return data;
+    })
+    .catch(error => {
+      context.error(new Error(error));
+    })
+  }
+}
+</script>
 
 <style scoped>
 .single-post-page {
