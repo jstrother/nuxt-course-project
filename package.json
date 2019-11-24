@@ -1,0 +1,17 @@
+{
+  "name": "nuxt-course-project",
+  "version": "1.0.0",
+  "description": "My groundbreaking Nuxt.js project",
+  "author": "Jim Strother",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "nuxt": "^2.0.0"
+  },
+  "devDependencies": {}
+}
