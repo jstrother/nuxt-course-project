@@ -1,6 +1,6 @@
 <template>
   <div class="new-post-form">
-    <AdminPostForm />
+    <AdminPostForm @submit="onSubmitted" />
   </div>
 </template>
 
@@ -11,6 +11,11 @@ export default {
   layout: 'admin',
   components: {
     AdminPostForm
+  },
+  methods: {
+    onSubmitted(postData) {
+      
+    }
   }
 }
 </script>
