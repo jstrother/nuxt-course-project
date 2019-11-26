@@ -15,29 +15,17 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   asyncData(context) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve({
-          loadedPost: {
-            id: 1,
-            title: `First Post (ID: ${context.params.id})`,
-            previewText: 'This is my first post',
-            author: 'Jim Strother',
-            updatedDate: new Date(),
-            content: 'Some dummy text that is not previewText',
-            thumbnail: 'https://static.pexels.com/photos/270348/pexels-photo-270348.jpeg'
-          }
-        })
-      }, 1500);
+    return axios.get(`https://nuxt-course-project-daaed.firebaseio.com/posts/${context.params.id}.json`)
+    .then(res => {
+      return {
+        loadedPost: res.data,
+      };
     })
-    .then(data => {
-      return data;
-    })
-    .catch(error => {
-      context.error(new Error(error));
-    })
+    .catch(error => context.error(error));
   }
 }
 </script>
