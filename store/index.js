@@ -9,6 +9,13 @@ const createStore = () => {
     mutations: {
       setPosts(state, posts) {
         state.loadedPosts = posts;
+      },
+      addPost(state, post) {
+        state.loadedPosts.push(post);
+      },
+      editPost(state, editedPost) {
+        const postIndex = state.loadedPosts.findIndex(post => post.id === editedPost.id);
+        state.loadedPosts[postIndex] = editedPost;
       }
     },
     actions: {
@@ -25,6 +32,26 @@ const createStore = () => {
       },
       setPosts({ commit }, posts) {
         commit('setPosts', posts);
+      },
+      addPost({ commit }, post) {
+        const createdPost = {
+          ...post,
+          updatedDate: new Date()
+        };
+        return axios.post('https://nuxt-course-project-daaed.firebaseio.com/posts.json', createdPost)
+        .then(res => {
+          commit('addPost', {...createdPost, id: res.data.name});
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
+      editPost({ commit }, editedPost) {
+        return axios.put(`https://nuxt-course-project-daaed.firebaseio.com/posts/${editedPost.id}.json`, editedPost)
+        .then(res => {
+          commit('editPost', editedPost);
+        })
+        .catch(error => console.log(error));
       }
     },
     getters: {
