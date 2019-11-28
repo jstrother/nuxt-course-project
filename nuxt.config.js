@@ -57,8 +57,14 @@ export default {
     extend (config, ctx) {
     }
   },
-  transition: {
+  pageTransition: {
     name: 'fade',
     mode: 'out-in'
-  }
+  },
+  env: {
+    firebaseAPIKey: 'AIzaSyBGetbzCPfOmc0qh6ZNnoNA_MKu3fmgytE'
+  },
+  // router: {
+  //   middleware: 'log'
+  // }
 }

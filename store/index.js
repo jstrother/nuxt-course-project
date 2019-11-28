@@ -3,7 +3,8 @@ import Vuex from 'vuex';
 const createStore = () => {
   return new Vuex.Store({
     state: {
-      loadedPosts: []
+      loadedPosts: [],
+      token: null
     },
     mutations: {
       setPosts(state, posts) {
@@ -15,6 +16,9 @@ const createStore = () => {
       editPost(state, editedPost) {
         const postIndex = state.loadedPosts.findIndex(post => post.id === editedPost.id);
         state.loadedPosts[postIndex] = editedPost;
+      },
+      setToken(state, token) {
+        state.token = token;
       }
     },
     actions: {
@@ -32,12 +36,12 @@ const createStore = () => {
       setPosts({ commit }, posts) {
         commit('setPosts', posts);
       },
-      addPost({ commit }, post) {
+      addPost({ commit, state }, post) {
         const createdPost = {
           ...post,
           updatedDate: new Date()
         };
-        return this.$axios.$post('/posts.json', createdPost)
+        return this.$axios.$post(`/posts.json?auth=${state.token}`, createdPost)
         .then(data => {
           commit('addPost', {...createdPost, id: data.name});
         })
@@ -45,12 +49,29 @@ const createStore = () => {
           console.log(error);
         });
       },
-      editPost({ commit }, editedPost) {
-        return this.$axios.$put(`/posts/${editedPost.id}.json`, editedPost)
+      editPost({ commit, state }, editedPost) {
+        return this.$axios.$put(`/posts/${editedPost.id}.json?auth=${state.token}`, editedPost)
         .then(() => {
           commit('editPost', editedPost);
         })
         .catch(error => console.log(error));
+      },
+      authenticateUser({ commit }, authData) {
+        let authURL = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.firebaseAPIKey}`
+        if (!authData.isLogin) {
+          authURL = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${process.env.firebaseAPIKey}`
+        }
+        return this.$axios.$post(authURL, {
+          email: authData.email,
+          password: authData.password,
+          returnSecureToken: true
+        })
+        .then(result => {
+          commit('setToken', result.idToken);
+        })
+        .catch(error => {
+          console.log(error);
+        });
       }
     },
     getters: {
