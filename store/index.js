@@ -1,4 +1,5 @@
 import Vuex from 'vuex';
+import Cookie from 'js-cookie';
 
 const createStore = () => {
   return new Vuex.Store({
@@ -70,28 +71,58 @@ const createStore = () => {
           returnSecureToken: true
         })
         .then(result => {
-          commit('setToken', result.idToken);
-          localStorage.setItem('token', result.idToken);
-          localStorage.setItem('tokenExpiration', new Date().getTime() + result.expiresIn * 1000);
-          dispatch('setLogoutTimer', result.expiresIn * 1000);
+          const token = result.idToken;
+          const tokenExpiration = new Date().getTime() + Number.parseInt(result.expiresIn) * 1000;
+
+          commit('setToken', token);
+
+          localStorage.setItem('token', token);
+          localStorage.setItem('tokenExpiration', tokenExpiration);
+
+          Cookie.set('token', token);
+          Cookie.set('tokenExpiration', tokenExpiration);
         })
         .catch(error => {
           console.log(error);
         });
       },
-      setLogoutTimer({ commit }, duration) {
-        setTimeout(() => {
-          commit('clearToken');
-        }, duration);
-      },
-      initAuth({ commit }) {
-        const token = localStorage.getItem('token');
-        const expirationDate = localStorage.getItem('tokenExpiration');
+      initAuth({ commit, dispatch }, req) {
+        let token;
+        let expirationDate;
+        if (req) {
+          if(!req.headers.cookie) {
+            return;
+          }
+          const tokenCookie = req.headers.cookie.split(';').find(key => key.trim().startsWith('token='));
+          if (!tokenCookie) {
+            return;
+          }
+          token = tokenCookie.split('=')[1];
 
-        if (new Date() >  expirationDate || !token) {
+          const expirationCookie = req.headers.cookie.split(';').find(key => key.trim().startsWith('tokenExpiration='));
+          if (!expirationCookie) {
+            return;
+          }
+          expirationDate = Number.parseInt(expirationCookie.split('=')[1]);
+        } else {
+          token = localStorage.getItem('token');
+          expirationDate = localStorage.getItem('tokenExpiration');
+        }
+        if (new Date().getTime() > expirationDate || !token) {
+          console.log('No token or invalid token');
+          dispatch('logout');
           return;
         }
         commit('setToken', token);
+      },
+      logout({ commit }) {
+        commit('clearToken');
+        Cookie.remove('token');
+        Cookie.remove('tokenExpiration');
+        if(process.client) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('tokenExpiration');
+        }
       }
     },
     getters: {
