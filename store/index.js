@@ -19,6 +19,9 @@ const createStore = () => {
       },
       setToken(state, token) {
         state.token = token;
+      },
+      clearToken(state) {
+        state.token = null;
       }
     },
     actions: {
@@ -56,7 +59,7 @@ const createStore = () => {
         })
         .catch(error => console.log(error));
       },
-      authenticateUser({ commit }, authData) {
+      authenticateUser({ commit, dispatch }, authData) {
         let authURL = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.firebaseAPIKey}`
         if (!authData.isLogin) {
           authURL = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${process.env.firebaseAPIKey}`
@@ -68,10 +71,27 @@ const createStore = () => {
         })
         .then(result => {
           commit('setToken', result.idToken);
+          localStorage.setItem('token', result.idToken);
+          localStorage.setItem('tokenExpiration', new Date().getTime() + result.expiresIn * 1000);
+          dispatch('setLogoutTimer', result.expiresIn * 1000);
         })
         .catch(error => {
           console.log(error);
         });
+      },
+      setLogoutTimer({ commit }, duration) {
+        setTimeout(() => {
+          commit('clearToken');
+        }, duration);
+      },
+      initAuth({ commit }) {
+        const token = localStorage.getItem('token');
+        const expirationDate = localStorage.getItem('tokenExpiration');
+
+        if (new Date() >  expirationDate || !token) {
+          return;
+        }
+        commit('setToken', token);
       }
     },
     getters: {
