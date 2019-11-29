@@ -109,7 +109,7 @@ const createStore = () => {
             return;
           }
           expirationDate = Number.parseInt(expirationCookie.split('=')[1]);
-        } else {
+        } else if (process.client) {
           token = localStorage.getItem('token');
           expirationDate = localStorage.getItem('tokenExpiration');
         }
