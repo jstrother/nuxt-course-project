@@ -1,4 +1,4 @@
-
+const bodyParser = require('body-parser');
 export default {
   mode: 'universal',
   /*
@@ -64,7 +64,8 @@ export default {
   env: {
     firebaseAPIKey: 'AIzaSyBGetbzCPfOmc0qh6ZNnoNA_MKu3fmgytE'
   },
-  // router: {
-  //   middleware: 'log'
-  // }
+  serverMiddleware: [
+    bodyParser.json(),
+    '~api'
+  ]
 }

@@ -81,6 +81,11 @@ const createStore = () => {
 
           Cookie.set('token', token);
           Cookie.set('tokenExpiration', tokenExpiration);
+
+          return this.$axios.$post('http://localhost:3000/api/track-data', {
+            data: 'Authenticated'
+          })
+          .catch(error => console.log(error));
         })
         .catch(error => {
           console.log(error);
